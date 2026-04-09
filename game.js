@@ -65,73 +65,8 @@ const PROVIDERS = {
 };
 
 // ===== SYSTEM PROMPT =====
-// Structure narrative en 5 chapitres avec une fin atteignable.
-// Le compteur de tours guide la progression pour que l'histoire
-// avance vers une conclusion en ~15-20 choix.
-
-const SYSTEM_PROMPT = `Tu es le Maître du Jeu d'un récit interactif dark fantasy. Ton univers est sombre, cruel et imprévisible.
-
-HISTOIRE :
-Le joueur incarne un vagabond sans mémoire qui se réveille aux portes d'Ombrath, un royaume dévoré par une malédiction ancienne. Il découvrira qu'un artefact — la Couronne du Crépuscule — est la clé pour briser ou dominer cette malédiction. Son voyage le mènera à travers des terres corrompues jusqu'au Sanctuaire des Cendres pour un dénouement final.
-
-STRUCTURE EN 5 CHAPITRES :
-Tu DOIS suivre cette progression selon le tour actuel du joueur.
-
-Chapitre I — Le Réveil (tours 1-3) :
-Le vagabond se réveille dans un lieu inquiétant. Il découvre les premiers signes de la malédiction. Il rencontre un personnage qui lui parle de la Couronne du Crépuscule. Mets en place l'atmosphère et le mystère.
-
-Chapitre II — La Quête (tours 4-7) :
-Le joueur explore le royaume maudit. Il doit trouver des indices sur l'emplacement du Sanctuaire des Cendres. Rencontres avec des factions (cultistes, survivants, créatures). Choix qui définissent son alignement moral. Possibilité de trouver de l'or, des alliés ou des ennemis.
-
-Chapitre III — L'Épreuve (tours 8-11) :
-Les dangers s'intensifient. Trahisons possibles, combats majeurs, révélations sur le passé du vagabond. Le joueur doit surmonter un obstacle majeur pour atteindre le Sanctuaire. Les choix ont des conséquences lourdes sur la santé et la sanité.
-
-Chapitre IV — Le Sanctuaire (tours 12-15) :
-Le joueur atteint le Sanctuaire des Cendres. Confrontation avec le gardien de la Couronne. Dilemmes moraux cruciaux : utiliser la Couronne pour sauver le royaume, la détruire, ou s'en emparer.
-
-Chapitre V — Le Dénouement (tours 16+) :
-Tu DOIS conclure l'histoire. Écris une fin en fonction des choix et des stats du joueur :
-- FIN HÉROÏQUE (santé >= 50 ET sanité >= 50) : Le joueur brise la malédiction. Le royaume commence à guérir. is_victory: true
-- FIN CORROMPUE (sanité < 30) : Le joueur succombe au pouvoir de la Couronne et devient le nouveau tyran. is_victory: true
-- FIN DU SACRIFICE (santé < 30 ET sanité >= 50) : Le joueur se sacrifie pour détruire la Couronne. is_victory: true
-- FIN TRAGIQUE : Si aucune condition n'est remplie clairement, le joueur survit mais le royaume reste maudit. is_victory: true
-La fin doit être un épilogue de 3-4 paragraphes. choices DOIT être vide [].
-
-RÈGLES NARRATIVES :
-- Écris en français, à la deuxième personne ("Vous")
-- Ton sombre, poétique, menaçant. Descriptions viscérales et atmosphériques.
-- Chaque passage fait 2-4 paragraphes (pas plus)
-- Les choix ont des conséquences réelles : blessures, folie, gain ou perte d'or
-- N'hésite pas à tuer le joueur si ses choix sont imprudents
-- Varie les situations : combat, exploration, dialogue, dilemme moral, horreur
-- Maintiens la cohérence avec les événements précédents
-
-RÈGLES TECHNIQUES :
-Tu DOIS répondre UNIQUEMENT avec un objet JSON valide, sans texte autour, dans ce format exact :
-{
-  "narrative": "Le texte narratif ici. Utilise \\n\\n pour séparer les paragraphes.",
-  "choices": [
-    "Premier choix possible",
-    "Deuxième choix possible",
-    "Troisième choix possible"
-  ],
-  "stats_change": {
-    "health": 0,
-    "sanity": 0,
-    "gold": 0
-  },
-  "chapter_title": "Chapitre I — Le Réveil",
-  "is_death": false,
-  "is_victory": false
-}
-
-- "choices" : toujours 3 ou 4 choix. Vide [] si mort ou victoire finale.
-- "stats_change" : modifications RELATIVES aux stats (+10, -20, etc.). Santé et sanité de 0 à 100. L'or augmente librement.
-- "is_death" : true si le joueur meurt.
-- "is_victory" : true si c'est la fin de l'histoire (chapitre V uniquement).
-- "chapter_title" : change quand un nouveau chapitre commence.
-
-ÉTAT ACTUEL — Tour: {turn}/16 | Chapitre attendu: {expected_chapter} | Santé: {health} | Sanité: {sanity} | Or: {gold}`;
+// Le prompt est maintenant dans i18n.js (clé "system_prompt")
+// pour supporter le français et l'anglais.
 
 // ===== PARTICULES DE L'ÉCRAN TITRE =====
 // Crée 30 petits points dorés qui flottent vers le haut avec des positions
@@ -216,6 +151,13 @@ function displayChoices(choices) {
 // On injecte les stats actuelles dans le system prompt à chaque appel.
 // Calcule le chapitre attendu en fonction du tour
 function getExpectedChapter(turn) {
+    if (currentLang === 'en') {
+        if (turn <= 3) return 'I — The Awakening';
+        if (turn <= 7) return 'II — The Quest';
+        if (turn <= 11) return 'III — The Trial';
+        if (turn <= 15) return 'IV — The Sanctuary';
+        return 'V — The Reckoning (CONCLUDE THE STORY)';
+    }
     if (turn <= 3) return 'I — Le Réveil';
     if (turn <= 7) return 'II — La Quête';
     if (turn <= 11) return 'III — L\'Épreuve';
@@ -229,7 +171,7 @@ async function callAI(userMessage) {
         state.turn++;
     }
 
-    const systemPrompt = SYSTEM_PROMPT
+    const systemPrompt = t('system_prompt')
         .replace('{turn}', state.turn)
         .replace('{expected_chapter}', getExpectedChapter(state.turn))
         .replace('{health}', state.stats.health)
@@ -237,11 +179,10 @@ async function callAI(userMessage) {
         .replace('{gold}', state.stats.gold);
 
     // Message initial si c'est le début de la partie
-    const firstMessage = 'Commence l\'histoire. Le vagabond se réveille aux portes du royaume maudit d\'Ombrath.';
     if (userMessage) {
         state.history.push({ role: 'user', content: userMessage });
     } else if (state.history.length === 0) {
-        state.history.push({ role: 'user', content: firstMessage });
+        state.history.push({ role: 'user', content: t('first_message') });
     }
 
     if (state.provider === 'groq') {
@@ -407,13 +348,13 @@ function handleResponse(response) {
             // Déterminer le titre de la fin selon les stats
             let endTitle = 'Fin de l\'Aventure';
             if (state.stats.sanity < 30) {
-                endTitle = 'Fin Corrompue — Le Nouveau Tyran';
+                endTitle = t('end_corrupt');
             } else if (state.stats.health < 30 && state.stats.sanity >= 50) {
-                endTitle = 'Fin du Sacrifice';
+                endTitle = t('end_sacrifice');
             } else if (state.stats.health >= 50 && state.stats.sanity >= 50) {
-                endTitle = 'Fin Héroïque — L\'Aube Nouvelle';
+                endTitle = t('end_heroic');
             } else {
-                endTitle = 'Fin Tragique — Le Royaume Maudit';
+                endTitle = t('end_tragic');
             }
 
             elements.victoryTitle.textContent = endTitle;
@@ -449,15 +390,15 @@ async function makeChoice(choice) {
     elements.loading.classList.remove('hidden');
 
     try {
-        const response = await callAI(`Mon choix : "${choice}"`);
+        const response = await callAI(`${t('choice_prefix')} : "${choice}"`);
         elements.loading.classList.add('hidden');
         handleResponse(response);
     } catch (error) {
         elements.loading.classList.add('hidden');
         elements.narrativeText.innerHTML = `
-            <p style="color: #8b1a1a;">Les ombres se dissipent brusquement...</p>
-            <p style="color: #7a7568;">Erreur : ${error.message}</p>
-            <p style="color: #7a7568;">Vérifiez votre clé API et réessayez.</p>
+            <p style="color: #8b1a1a;">${t('error_shadows')}</p>
+            <p style="color: #7a7568;">${t('error_prefix')} : ${error.message}</p>
+            <p style="color: #7a7568;">${t('error_check_api')}</p>
         `;
     }
 }
@@ -467,7 +408,7 @@ async function startGame() {
     const apiKey = elements.apiKey.value.trim();
     if (!apiKey) {
         elements.apiKey.style.borderColor = '#8b1a1a';
-        elements.apiKey.placeholder = 'Clé API requise !';
+        elements.apiKey.placeholder = t('api_required');
         return;
     }
 
@@ -493,8 +434,8 @@ async function startGame() {
     } catch (error) {
         elements.loading.classList.add('hidden');
         elements.narrativeText.innerHTML = `
-            <p style="color: #8b1a1a;">Impossible d'invoquer les ombres...</p>
-            <p style="color: #7a7568;">Erreur : ${error.message}</p>
+            <p style="color: #8b1a1a;">${t('error_invoke')}</p>
+            <p style="color: #7a7568;">${t('error_prefix')} : ${error.message}</p>
         `;
     }
 }
@@ -605,6 +546,7 @@ function saveGame() {
         history: state.history,
         chapter: state.chapter,
         turn: state.turn,
+        lang: currentLang,
         stats: { ...state.stats },
         chapterTitle: elements.chapterTitle.textContent,
         narrativeHTML: elements.narrativeText.innerHTML,
@@ -646,9 +588,10 @@ function loadGame() {
         elements.narrativeText.innerHTML = saveData.narrativeHTML;
         updateStats({ health: 0, sanity: 0, gold: 0 }); // Rafraîchit l'affichage des stats
 
-        // Restaurer le provider et la clé dans le formulaire
+        // Restaurer le provider, la clé et la langue
         elements.provider.value = state.provider;
         elements.apiKey.value = state.apiKey;
+        if (saveData.lang) setLanguage(saveData.lang);
 
         // Restaurer les choix
         if (saveData.choices && saveData.choices.length > 0 && saveData.currentScreen === 'game') {
@@ -693,6 +636,10 @@ window.addEventListener('popstate', (e) => {
         showScreen('title');
     }
 });
+
+// ===== BOUTONS DE LANGUE =====
+$('lang-fr').addEventListener('click', () => setLanguage('fr'));
+$('lang-en').addEventListener('click', () => setLanguage('en'));
 
 // ===== INITIALISATION =====
 history.replaceState({ screen: 'title' }, '', '');

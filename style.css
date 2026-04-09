@@ -168,10 +168,43 @@ body {
     color: #7a7568;
     font-style: italic;
     font-size: 1.1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
+}
+
+/* Sélecteur de langue */
+.lang-section {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.lang-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #4a4740;
+    background: none;
+    border: 1px solid rgba(196, 163, 90, 0.15);
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.lang-btn:hover {
+    color: #c4a35a;
+    border-color: rgba(196, 163, 90, 0.4);
+}
+
+.lang-btn.active {
+    color: #c4a35a;
+    border-color: #c4a35a;
+    background: rgba(196, 163, 90, 0.08);
 }
 
 /* Section clé API */

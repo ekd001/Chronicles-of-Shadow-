@@ -14,22 +14,29 @@
         <div class="particles" id="particles"></div>
         <div class="title-content">
             <div class="title-icon">⚔</div>
-            <h1 class="game-title">Chroniques<br>de l'Ombre</h1>
-            <p class="subtitle">Chaque choix forge votre destin. Chaque ombre cache un prix.</p>
+            <h1 class="game-title" data-i18n="title">Chroniques<br>de l'Ombre</h1>
+            <p class="subtitle" data-i18n="subtitle">Chaque choix forge votre destin. Chaque ombre cache un prix.</p>
+
+            <!-- Sélecteur de langue -->
+            <div class="lang-section">
+                <button id="lang-fr" class="lang-btn active">FR</button>
+                <button id="lang-en" class="lang-btn">EN</button>
+            </div>
+
             <div class="api-section">
-                <label for="provider">Fournisseur IA</label>
+                <label for="provider" data-i18n="provider_label">Fournisseur IA</label>
                 <select id="provider">
-                    <option value="groq">Groq (gratuit, rapide)</option>
-                    <option value="gemini">Google Gemini</option>
+                    <option value="groq" data-i18n="provider_groq">Groq (gratuit, rapide)</option>
+                    <option value="gemini" data-i18n="provider_gemini">Google Gemini</option>
                 </select>
-                <label for="api-key">Clé API</label>
-                <input type="password" id="api-key" placeholder="Entrez votre clé API...">
-                <a id="api-link" href="https://console.groq.com/keys" target="_blank" class="api-link">Obtenir une clé gratuite →</a>
+                <label for="api-key" data-i18n="api_label">Clé API</label>
+                <input type="password" id="api-key" data-i18n-placeholder="api_placeholder" placeholder="Entrez votre clé API...">
+                <a id="api-link" href="https://console.groq.com/keys" target="_blank" class="api-link" data-i18n="api_link">Obtenir une clé gratuite →</a>
             </div>
             <div class="title-buttons">
-                <button id="start-btn" class="btn-dark">Nouvelle Aventure</button>
-                <span id="title-separator" class="title-separator hidden">ou</span>
-                <button id="continue-btn" class="btn-dark btn-continue hidden">Reprendre la Partie</button>
+                <button id="start-btn" class="btn-dark" data-i18n="new_game">Nouvelle Aventure</button>
+                <span id="title-separator" class="title-separator hidden" data-i18n="or">ou</span>
+                <button id="continue-btn" class="btn-dark btn-continue hidden" data-i18n="continue_game">Reprendre la Partie</button>
             </div>
         </div>
     </div>
@@ -37,12 +44,12 @@
     <!-- Modale de confirmation -->
     <div id="modal-overlay" class="modal-overlay hidden">
         <div class="modal">
-            <p class="modal-title">Quitter l'aventure ?</p>
-            <p class="modal-text">Votre progression sera préservée dans les ombres.</p>
+            <p class="modal-title" data-i18n="modal_title">Quitter l'aventure ?</p>
+            <p class="modal-text" data-i18n="modal_text">Votre progression sera préservée dans les ombres.</p>
             <div class="modal-actions">
-                <button id="modal-save-quit" class="btn-dark btn-modal">Sauvegarder et quitter</button>
-                <button id="modal-reset" class="btn-dark btn-modal btn-danger">Recommencer</button>
-                <button id="modal-cancel" class="btn-dark btn-modal">Continuer l'aventure</button>
+                <button id="modal-save-quit" class="btn-dark btn-modal" data-i18n="modal_save">Sauvegarder et quitter</button>
+                <button id="modal-reset" class="btn-dark btn-modal btn-danger" data-i18n="modal_reset">Recommencer</button>
+                <button id="modal-cancel" class="btn-dark btn-modal" data-i18n="modal_cancel">Continuer l'aventure</button>
             </div>
         </div>
     </div>
@@ -68,7 +75,7 @@
                 <div class="loading-dots">
                     <span></span><span></span><span></span>
                 </div>
-                <p>Les ombres murmurent...</p>
+                <p data-i18n="loading">Les ombres murmurent...</p>
             </div>
         </div>
 
@@ -79,9 +86,9 @@
     <div id="gameover-screen" class="screen">
         <div class="gameover-content">
             <div class="death-icon">💀</div>
-            <h1 class="gameover-title">Votre histoire s'achève</h1>
+            <h1 class="gameover-title" data-i18n="gameover_title">Votre histoire s'achève</h1>
             <p id="gameover-text" class="gameover-text"></p>
-            <button id="restart-btn" class="btn-dark">Renaître des Cendres</button>
+            <button id="restart-btn" class="btn-dark" data-i18n="restart">Renaître des Cendres</button>
         </div>
     </div>
 
@@ -92,15 +99,16 @@
             <h1 id="victory-title" class="victory-title">Fin de l'Aventure</h1>
             <p id="victory-text" class="victory-text"></p>
             <div class="victory-stats">
-                <span>Santé finale : <strong id="final-health">0</strong></span>
-                <span>Sanité finale : <strong id="final-sanity">0</strong></span>
-                <span>Or amassé : <strong id="final-gold">0</strong></span>
-                <span>Tours joués : <strong id="final-turns">0</strong></span>
+                <span><span data-i18n="final_health">Santé finale</span> : <strong id="final-health">0</strong></span>
+                <span><span data-i18n="final_sanity">Sanité finale</span> : <strong id="final-sanity">0</strong></span>
+                <span><span data-i18n="final_gold">Or amassé</span> : <strong id="final-gold">0</strong></span>
+                <span><span data-i18n="final_turns">Tours joués</span> : <strong id="final-turns">0</strong></span>
             </div>
-            <button id="newgame-btn" class="btn-dark">Nouvelle Aventure</button>
+            <button id="newgame-btn" class="btn-dark" data-i18n="new_game">Nouvelle Aventure</button>
         </div>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="audio.js"></script>
     <script src="game.js"></script>
 </body>
