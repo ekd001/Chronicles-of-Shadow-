@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chroniques de l'Ombre</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Écran titre -->
+    <div id="title-screen" class="screen active">
+        <div class="particles" id="particles"></div>
+        <div class="title-content">
+            <div class="title-icon">⚔</div>
+            <h1 class="game-title">Chroniques<br>de l'Ombre</h1>
+            <p class="subtitle">Chaque choix forge votre destin. Chaque ombre cache un prix.</p>
+            <div class="api-section">
+                <label for="provider">Fournisseur IA</label>
+                <select id="provider">
+                    <option value="groq">Groq (gratuit, rapide)</option>
+                    <option value="gemini">Google Gemini</option>
+                </select>
+                <label for="api-key">Clé API</label>
+                <input type="password" id="api-key" placeholder="Entrez votre clé API...">
+                <a id="api-link" href="https://console.groq.com/keys" target="_blank" class="api-link">Obtenir une clé gratuite →</a>
+            </div>
+            <div class="title-buttons">
+                <button id="start-btn" class="btn-dark">Nouvelle Aventure</button>
+                <span id="title-separator" class="title-separator hidden">ou</span>
+                <button id="continue-btn" class="btn-dark btn-continue hidden">Reprendre la Partie</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal">
+            <p class="modal-title">Quitter l'aventure ?</p>
+            <p class="modal-text">Votre progression sera préservée dans les ombres.</p>
+            <div class="modal-actions">
+                <button id="modal-save-quit" class="btn-dark btn-modal">Sauvegarder et quitter</button>
+                <button id="modal-reset" class="btn-dark btn-modal btn-danger">Recommencer</button>
+                <button id="modal-cancel" class="btn-dark btn-modal">Continuer l'aventure</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Écran de jeu -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="header-left">
+                <button id="back-btn" class="icon-btn" title="Quitter">←</button>
+                <h2 id="chapter-title" class="chapter-title">Chapitre I</h2>
+            </div>
+            <div class="stats-bar">
+                <span class="stat" id="stat-health" title="Santé">🗡 <span>100</span></span>
+                <span class="stat" id="stat-sanity" title="Sanité">👁 <span>100</span></span>
+                <span class="stat" id="stat-gold" title="Or">⬡ <span>0</span></span>
+                <button id="mute-btn" class="mute-btn" title="Couper/Activer le son">♫</button>
+            </div>
+        </div>
+
+        <div class="narrative-container">
+            <div id="narrative-text" class="narrative-text"></div>
+            <div id="loading-indicator" class="loading hidden">
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <p>Les ombres murmurent...</p>
+            </div>
+        </div>
+
+        <div id="choices-container" class="choices-container hidden"></div>
+    </div>
+
+    <!-- Écran game over -->
+    <div id="gameover-screen" class="screen">
+        <div class="gameover-content">
+            <div class="death-icon">💀</div>
+            <h1 class="gameover-title">Votre histoire s'achève</h1>
+            <p id="gameover-text" class="gameover-text"></p>
+            <button id="restart-btn" class="btn-dark">Renaître des Cendres</button>
+        </div>
+    </div>
+
+    <!-- Écran victoire -->
+    <div id="victory-screen" class="screen">
+        <div class="victory-content">
+            <div class="victory-icon">👑</div>
+            <h1 id="victory-title" class="victory-title">Fin de l'Aventure</h1>
+            <p id="victory-text" class="victory-text"></p>
+            <div class="victory-stats">
+                <span>Santé finale : <strong id="final-health">0</strong></span>
+                <span>Sanité finale : <strong id="final-sanity">0</strong></span>
+                <span>Or amassé : <strong id="final-gold">0</strong></span>
+                <span>Tours joués : <strong id="final-turns">0</strong></span>
+            </div>
+            <button id="newgame-btn" class="btn-dark">Nouvelle Aventure</button>
+        </div>
+    </div>
+
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
