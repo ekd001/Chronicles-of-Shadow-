@@ -2,7 +2,7 @@
 
 A dark fantasy narrative game powered by AI. Every playthrough is unique.
 
-![Version](https://img.shields.io/badge/version-1.0.0-c4a35a)
+![Version](https://img.shields.io/badge/version-1.1.0-5a8ab5)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## About

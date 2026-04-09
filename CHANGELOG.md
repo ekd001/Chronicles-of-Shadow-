@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-04-09
+
+### Changed
+- Refactored all CSS colors to use custom properties (`:root` variables)
+- Switched color theme from gold to dark cold blue (#5a8ab5)
+- One place to modify for full theme changes
+
+### Added
+- Favicon (blue sword on dark background)
+- CI/CD pipeline with GitHub Actions (lint, deploy, release)
+
 ## [1.0.0] - 2026-04-09
 
 ### Added
