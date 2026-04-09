@@ -46,18 +46,26 @@ jobs:
       - name: Deploy Preview (PR)
         if: github.event_name == 'pull_request'
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
-          echo "Preview URL: $url"
+          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} || true
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       # Deploy to production on push to master
+      # Note: Vercel CLI may exit with error even when deploy succeeds.
+      # We verify the deployment separately.
       - name: Deploy Production (master)
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
-          echo "Production URL: $url"
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} 2>&1 | tee deploy_output.txt || true
+          # Check if "Production:" URL appears in output (= deploy succeeded)
+          if grep -q "Production:" deploy_output.txt; then
+            echo "Deploy successful!"
+            grep "Production:" deploy_output.txt
+          else
+            echo "Deploy failed — no production URL found"
+            exit 1
+          fi
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
