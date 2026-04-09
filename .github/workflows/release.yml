@@ -1,0 +1,49 @@
+# ===== Release — Create GitHub Release =====
+# Triggered when a new version tag (v*) is pushed.
+# Automatically creates a GitHub Release with the changelog.
+#
+# Usage:
+#   git tag -a v1.1.0 -m "v1.1.0 - New feature"
+#   git push origin master --tags
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Extract the version from the tag (e.g., v1.0.0 -> 1.0.0)
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      # Extract the latest section from CHANGELOG.md for release notes
+      - name: Extract changelog
+        id: changelog
+        run: |
+          # Get content between the first two ## headers (latest version)
+          changelog=$(awk '/^## \[/{if(found) exit; found=1; next} found' CHANGELOG.md)
+          # Save to file to preserve formatting
+          echo "$changelog" > release_notes.md
+          echo "Extracted release notes for v${{ steps.version.outputs.VERSION }}"
+
+      # Create the GitHub Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "v${{ steps.version.outputs.VERSION }}"
+          body_path: release_notes.md
+          generate_release_notes: false

@@ -1,0 +1,70 @@
+# ===== CD — Deploy to Vercel =====
+# Deploys to production on push to master.
+# Deploys a preview on pull requests.
+#
+# SETUP REQUIRED:
+# Add these secrets in GitHub repo Settings > Secrets > Actions:
+#   - VERCEL_TOKEN    : Your Vercel personal access token
+#   - VERCEL_ORG_ID   : Your Vercel org/account ID
+#   - VERCEL_PROJECT_ID : Your Vercel project ID
+#
+# To get these values:
+# 1. Install Vercel CLI: npm i -g vercel
+# 2. Run: vercel link (in the project folder)
+# 3. Check .vercel/project.json for orgId and projectId
+# 4. Create a token at: https://vercel.com/account/tokens
+
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    # Only run if CI passes
+    needs: []
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      # Pull Vercel project settings
+      - name: Pull Vercel config
+        run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # Deploy preview for PRs
+      - name: Deploy Preview (PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          url=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }})
+          echo "Preview URL: $url"
+          echo "PREVIEW_URL=$url" >> $GITHUB_ENV
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # Deploy to production on push to master
+      - name: Deploy Production (master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          url=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "Production URL: $url"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

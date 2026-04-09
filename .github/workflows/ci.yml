@@ -1,0 +1,56 @@
+# ===== CI — Lint & Validate =====
+# Runs on every push and pull request.
+# Checks HTML validity and JS syntax errors.
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js (needed for linting tools)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3. Install linting tools
+      - name: Install linters
+        run: npm install -g htmlhint eslint
+
+      # 4. Lint HTML — checks for common HTML errors
+      - name: Lint HTML
+        run: htmlhint index.html
+
+      # 5. Check JS syntax — parse all JS files for syntax errors
+      - name: Validate JS syntax
+        run: |
+          for file in *.js; do
+            echo "Checking $file..."
+            node --check "$file"
+          done
+
+      # 6. Check that all required files exist
+      - name: Verify project structure
+        run: |
+          echo "Verifying required files..."
+          for file in index.html style.css game.js audio.js i18n.js; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Missing $file"
+              exit 1
+            fi
+            echo "OK: $file"
+          done
+          echo "All files present."
